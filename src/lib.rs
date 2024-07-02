@@ -230,11 +230,11 @@ impl Value {
     }
 
     pub fn backward(&self) -> GradStore {
-        fn build_topo(value: &Value, visited: &mut HashMap<String, bool>, topo: &mut Vec<Value>) {
-            if visited.contains_key(&value.label) {
+        fn build_topo(value: &Value, visited: &mut HashMap<ValueId, bool>, topo: &mut Vec<Value>) {
+            if visited.contains_key(&value.id) {
                 return;
             }
-            visited.insert(value.label.clone(), true);
+            visited.insert(value.id, true);
             if let Some(op) = &value.op {
                 match op {
                     Op::Binary(lhs, rhs, _) => {
@@ -337,6 +337,10 @@ impl Value {
         }))
     }
 
+    pub fn sqrt(&self) -> Value {
+        self.mul(&self)
+    }
+
     pub fn div(&self, other: &Value) -> Value {
         self.mul(&other.pow(&Value::from(-1.0)))
     }
@@ -361,7 +365,6 @@ impl Value {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
     use super::*;
     #[test]
     fn test_tanh() {
